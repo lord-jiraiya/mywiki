@@ -4,9 +4,11 @@ from . import util
 from django.http import HttpResponseRedirect
 from markdown2 import Markdown
 from django.urls import reverse
-md= Markdown()
 import random
- 
+import re
+
+md= Markdown()
+
 class TitleEntry(forms.Form):
     title=forms.CharField(label="")
 class DataEntry(forms.Form):
@@ -15,7 +17,8 @@ class DataEntry(forms.Form):
 
 def index(request):
     return render(request, "encyclopedia/index.html", {
-        "entries": util.list_entries()
+        "entries": util.list_entries(),
+        "message" : "All Pages"
     })
 def content(request,title):
     if request.method == "POST":
@@ -29,7 +32,7 @@ def content(request,title):
 
         if util.get_entry(title) is None:
             return render(request,"encyclopedia/error.html",{
-                "message": "Content Not Found" 
+                "message": "Page Not Found" 
             } )
         else:
             cont=md.convert(util.get_entry(title))
@@ -92,5 +95,29 @@ def add(request):
 def rand(request):
     title=random.choice(util.list_entries())
     return redirect("content",title=title)
+
+def search(request):
+    
+    rtitle=request.GET["q"]
+    print("Hello")
+    if util.get_entry(rtitle):
+        return redirect("content",title=rtitle)
+    else:
+        request.session["titles"]=[]
+        alltitles=util.list_entries()
+        for title in alltitles:
+            if(re.findall(rtitle,title,re.IGNORECASE)):
+                request.session["titles"].append(title)
+        return render(request,"encyclopedia/index.html",{
+            "entries":request.session["titles"],
+            "message": f"Search Results for '{rtitle}'"
+        })
+
+        
+
+
+        
+        
+
 
 
