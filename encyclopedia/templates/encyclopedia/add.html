@@ -1,0 +1,33 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title%}
+{% if titlecheck %}
+Adding Page | {{title}}
+{% else %}
+Add Page
+{% endif %}
+{% endblock %}
+
+{% block body %}
+
+{% if titlecheck %}
+<h2 class="display-4">Enter Content for {{ title }}</h2>
+{% else  %}
+<h2 class="display-4">Enter Title of Your Entry</h2>
+{% endif %}
+<hr>
+<form action="{% url 'add'%}" method="post">
+    {% csrf_token %}
+{{ form }}
+<br>
+{% if titlecheck %}
+<input type="hidden" name="title" value="{{ title }}" >
+
+<input type="submit" name="data_submit">
+
+{% else %}
+<input type="submit" name="title_submit">
+{% endif %}
+</form>
+<a href="{% url 'index' %}">Cancel</a>
+{% endblock %}
